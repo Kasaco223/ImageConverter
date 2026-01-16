@@ -5,7 +5,7 @@ cd /d "%~dp0"
 :: Configuración
 set "APP_NAME=Conversor de Imágenes"
 set "PYTHON_EXE=python.exe"
-set "SCRIPT_NAME=gui_converter.py"
+set "SCRIPT_NAME=%~dp0gui_converter.py"
 set "EXE_NAME=ConversorImagenes.exe"
 set "SHORTCUT_NAME=%APP_NAME%.lnk"
 set "START_MENU_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs\%APP_NAME%"
