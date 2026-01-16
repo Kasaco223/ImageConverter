@@ -86,7 +86,7 @@ echo from pathlib import Path
 echo from datetime import datetime, timedelta, timezone
 echo import time
 echo.
-echo def get_colombia_timestamp^(:^):
+echo def get_colombia_timestamp^(^):
 echo     now_utc = datetime.now^(timezone.utc^)
 echo     colombia_offset = timezone^(timedelta^(hours=-5^)^)
 echo     now_colombia = now_utc.astimezone^(colombia_offset^)
@@ -94,7 +94,7 @@ echo     return now_colombia.strftime^("%%H%%M%%d%%m%%Y"^)
 echo.
 echo def get_custom_filename^(original_filename, ext^):
 echo     name_without_ext = os.path.splitext^(original_filename^)[0]
-echo     timestamp = get_colombia_timestamp^(:^)
+echo     timestamp = get_colombia_timestamp^(^)
 echo     return f"{name_without_ext}_K_{timestamp}{ext}"
 echo.
 echo class ImageConverterApp:
@@ -108,7 +108,7 @@ echo         self.output_format = tk.StringVar^(value="webp"^)
 echo         self.files_to_convert = []
 echo         self.output_dir = os.path.join^(os.path.expanduser^("~"^), "Imágenes Comprimidas"^)
 echo         os.makedirs^(self.output_dir, exist_ok=True^)
-echo         self.style = ttk.Style^(:^)
+echo         self.style = ttk.Style^(^)
 echo         self.style.configure^('TFrame', background='#f0f0f0'^)
 echo         self.style.configure^('TLabel', background='#f0f0f0'^)
 echo         self.style.configure^('TButton', padding=5^)
@@ -123,7 +123,7 @@ echo         self.controls_frame.pack^(fill=tk.X, pady=^(0, 10^)^)
 echo         ttk.Label^(self.controls_frame, text="Calidad:"^).pack^(side=tk.LEFT, padx=^(0, 5^)^)
 echo         self.quality_scale = ttk.Scale^(self.controls_frame, from_=1, to=100, orient=tk.HORIZONTAL, variable=self.quality, command=lambda v: self.quality_var.set^(f"{int^(float^(v^)^)}%%"^)^)
 echo         self.quality_scale.pack^(side=tk.LEFT, fill=tk.X, expand=True, padx=^(0, 10^)^)
-echo         self.quality_var = tk.StringVar^(value=f"{self.quality.get^(:^)}%%"^)
+echo         self.quality_var = tk.StringVar^(value=f"{self.quality.get^(^)}%%"^)
 echo         ttk.Label^(self.controls_frame, textvariable=self.quality_var, width=5^).pack^(side=tk.LEFT^)
 echo         ttk.Label^(self.controls_frame, text="Formato:"^).pack^(side=tk.LEFT, padx=^(10, 5^)^)
 echo         self.format_menu = ttk.Combobox^(self.controls_frame, textvariable=self.output_format, values=["webp", "jpg", "png"], state="readonly", width=8^)
@@ -156,13 +156,13 @@ echo     def process_files^(self, files^):
 echo         supported_formats = ^('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff'^)
 echo         new_files = []
 echo         for file_path in files:
-echo             ext = os.path.splitext^(file_path^)[1].lower^(:^)
+echo             ext = os.path.splitext^(file_path^)[1].lower^(^)
 echo             if ext in supported_formats: new_files.append^(file_path^)
 echo         if not new_files:
 echo             messagebox.showwarning^("Sin archivos válidos", "No se encontraron archivos de imagen válidos."^)
 echo             return
 echo         self.files_to_convert = list^(set^(self.files_to_convert + new_files^)^)
-echo         self.update_drop_label^(:^)
+echo         self.update_drop_label^(^)
 echo     def update_drop_label^(self^):
 echo         if not self.files_to_convert:
 echo             self.drop_label.config^(text="Arrastra imágenes aquí\no haz clic para seleccionar"^)
@@ -178,9 +178,9 @@ echo     def convert_images^(self^):
 echo         if not self.files_to_convert:
 echo             messagebox.showinfo^("Sin archivos", "No hay archivos para convertir."^)
 echo             return
-echo         output_format = self.output_format.get^(:^).lower^(:^)
+echo         output_format = self.output_format.get^(^).lower^(^)
 echo         if output_format == 'jpg': output_format = 'jpeg'
-echo         quality = self.quality.get^(:^)
+echo         quality = self.quality.get^(^)
 echo         total_files = len^(self.files_to_convert^)
 echo         converted_count = 0
 echo         output_dir = self.output_dir
@@ -196,11 +196,11 @@ echo                 output_filename = get_custom_filename^(filename, ext^)
 echo                 output_path = os.path.join^(output_dir, output_filename^)
 echo                 self.log^(f"Convirtiendo {i}/{total_files}: {filename} -> {output_filename}"^)
 echo                 self.progress["value"] = i
-echo                 self.root.update_idletasks^(:^)
+echo                 self.root.update_idletasks^(^)
 echo                 with Image.open^(input_path^) as img:
 echo                     if output_format == 'jpeg' and img.mode in ^('RGBA', 'LA'^):
 echo                         background = Image.new^('RGB', img.size, ^(255, 255, 255^)^)
-echo                         background.paste^(img, mask=img.split^(:^)[-1]^)
+echo                         background.paste^(img, mask=img.split^(^)[-1]^)
 echo                         img = background
 echo                     elif img.mode != 'RGB' and output_format == 'jpeg':
 echo                         img = img.convert^('RGB'^)
@@ -209,24 +209,24 @@ echo                     if output_format == 'webp': save_args['method'] = 6
 echo                     elif output_format == 'png':
 echo                         save_args.pop^('quality', None^)
 echo                         save_args['optimize'] = True
-echo                     img.save^(output_path, format=output_format.upper^(:^), **save_args^)
+echo                     img.save^(output_path, format=output_format.upper^(^), **save_args^)
 echo                 converted_count += 1
 echo             except Exception as e:
 echo                 self.log^(f"Error al convertir {os.path.basename(input_path)}: {str(e)}"^)
 echo         self.log^(f"\nConversión completada: {converted_count} de {total_files} archivos convertidos."^)
 echo         self.log^(f"Los archivos se guardaron en: {output_dir}"^)
 echo         self.files_to_convert = []
-echo         self.update_drop_label^(:^)
+echo         self.update_drop_label^(^)
 echo         self.convert_btn.config^(state=tk.NORMAL^)
 echo         if converted_count ^> 0:
 echo             if messagebox.askyesno^("Conversión completada", f"Se convirtieron {converted_count} archivos.\n¿Deseas abrir la carpeta de destino?"^):
 echo                 os.startfile^(output_dir^)
-echo def main^(:^):
-echo     root = tk.Tk^(:^)
+echo def main^(^):
+echo     root = tk.Tk^(^)
 echo     app = ImageConverterApp^(root^)
-echo     root.mainloop^(:^)
+echo     root.mainloop^(^)
 echo if __name__ == "__main__":
-echo     main^(:^)
+echo     main^(^)
 ) > "%SCRIPT_NAME%"
 
 :: Crear ejecutable con PyInstaller
