@@ -1,5 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
+cd /d "%~dp0"
 
 :: Configuración
 set "APP_NAME=Conversor de Imágenes"
