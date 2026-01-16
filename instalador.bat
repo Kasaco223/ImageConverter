@@ -1,5 +1,5 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 cd /d "%~dp0"
 
 :: Configuración
@@ -202,7 +202,7 @@ echo                     if output_format == 'jpeg' and img.mode in ('RGBA', 'LA
 echo                         background = Image.new('RGB', img.size, (255, 255, 255)) >> "%SCRIPT_NAME%"
 echo                         background.paste(img, mask=img.split()[-1]) >> "%SCRIPT_NAME%"
 echo                         img = background >> "%SCRIPT_NAME%"
-echo                     elif img.mode ^!= 'RGB' and output_format == 'jpeg': >> "%SCRIPT_NAME%"
+echo                     elif img.mode != 'RGB' and output_format == 'jpeg': >> "%SCRIPT_NAME%"
 echo                         img = img.convert('RGB') >> "%SCRIPT_NAME%"
 echo                     save_args = {'quality': quality} >> "%SCRIPT_NAME%"
 echo                     if output_format == 'webp': save_args['method'] = 6 >> "%SCRIPT_NAME%"
