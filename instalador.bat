@@ -114,35 +114,33 @@ $Shortcut.Save()"
 
 :: Crear archivo de desinstalación
 echo Creando desinstalador...
-(
-echo @echo off
-echo setlocal enabledelayedexpansion
-
-echo Eliminando archivos del programa...
-if exist "%START_MENU_DIR%\%EXE_NAME%" (
-    del /f /q "%START_MENU_DIR%\%EXE_NAME%"
-)
-
-if exist "%DESKTOP_DIR%\%EXE_NAME%" (
-    del /f /q "%DESKTOP_DIR%\%EXE_NAME%"
-)
-
-echo Eliminando accesos directos...
-if exist "%START_MENU_DIR%\%SHORTCUT_NAME%" (
-    del /f /q "%START_MENU_DIR%\%SHORTCUT_NAME%"
-)
-
-if exist "%DESKTOP_DIR%\%SHORTCUT_NAME%" (
-    del /f /q "%DESKTOP_DIR%\%SHORTCUT_NAME%"
-)
-
-if exist "%START_MENU_DIR%" (
-    rmdir "%START_MENU_DIR%" 2>nul
-)
-
-echo Desinstalación completada.
-pause
-) > "uninstall.bat"
+echo @echo off > "uninstall.bat"
+echo setlocal enabledelayedexpansion >> "uninstall.bat"
+echo. >> "uninstall.bat"
+echo echo Eliminando archivos del programa... >> "uninstall.bat"
+echo if exist "%START_MENU_DIR%\%EXE_NAME%" ( >> "uninstall.bat"
+echo     del /f /q "%START_MENU_DIR%\%EXE_NAME%" >> "uninstall.bat"
+echo ) >> "uninstall.bat"
+echo. >> "uninstall.bat"
+echo if exist "%DESKTOP_DIR%\%EXE_NAME%" ( >> "uninstall.bat"
+echo     del /f /q "%DESKTOP_DIR%\%EXE_NAME%" >> "uninstall.bat"
+echo ) >> "uninstall.bat"
+echo. >> "uninstall.bat"
+echo echo Eliminando accesos directos... >> "uninstall.bat"
+echo if exist "%START_MENU_DIR%\%SHORTCUT_NAME%" ( >> "uninstall.bat"
+echo     del /f /q "%START_MENU_DIR%\%SHORTCUT_NAME%" >> "uninstall.bat"
+echo ) >> "uninstall.bat"
+echo. >> "uninstall.bat"
+echo if exist "%DESKTOP_DIR%\%SHORTCUT_NAME%" ( >> "uninstall.bat"
+echo     del /f /q "%DESKTOP_DIR%\%SHORTCUT_NAME%" >> "uninstall.bat"
+echo ) >> "uninstall.bat"
+echo. >> "uninstall.bat"
+echo if exist "%START_MENU_DIR%" ( >> "uninstall.bat"
+echo     rmdir "%START_MENU_DIR%" 2^>nul >> "uninstall.bat"
+echo ) >> "uninstall.bat"
+echo. >> "uninstall.bat"
+echo echo Desinstalación completada. >> "uninstall.bat"
+echo pause >> "uninstall.bat"
 
 :: Copiar el desinstalador al menú de inicio
 copy "uninstall.bat" "%START_MENU_DIR%\Desinstalar %APP_NAME%.bat" >nul
