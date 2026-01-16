@@ -112,6 +112,26 @@ $Shortcut.IconLocation = '%SYSTEMROOT%\System32\imageres.dll,67';
 $Shortcut.Description = '%APP_NAME%';
 $Shortcut.Save()"
 
+:: Crear ejecutable con PyInstaller
+echo Creando ejecutable con PyInstaller...
+%PYTHON_EXE% -m PyInstaller --noconfirm --onefile --windowed --name="%EXE_NAME:~0,-4%" --icon=NONE "%SCRIPT_NAME%" --distpath "%TEMP_DIR%" --workpath "%TEMP_DIR%\build" --specpath "%TEMP_DIR%"
+
+if not exist "%TEMP_DIR%\%EXE_NAME%" (
+    echo Error al crear el ejecutable. Verifica los mensajes de error anteriores.
+    pause
+    exit /b 1
+)
+
+:: Mover el ejecutable al directorio actual
+move /Y "%TEMP_DIR%\%EXE_NAME%" . >nul
+
+:: Crear carpetas de trabajo
+if not exist "input" mkdir "input"
+if not exist "output" mkdir "output"
+
+:: Limpiar script generado
+del /f /q "%SCRIPT_NAME%" >nul 2>&1
+
 :: Crear archivo de desinstalación
 echo Creando desinstalador...
 echo @echo off > "uninstall.bat"
