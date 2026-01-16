@@ -27,28 +27,30 @@ set INPUT_FOLDER=input
 set OUTPUT_FOLDER=output
 set QUALITY=80
 set RECURSIVE=
+set FORMAT=webp
 
 :: Menú de opciones
 :menu
 cls
 echo ===================================
-echo    CONVERSOR DE IMAGENES A WEBP
+echo    CONVERSOR DE IMAGENES
 echo ===================================
 echo.
 echo 1. Convertir imagenes en la carpeta 'input' a 'output'
 echo 2. Especificar carpetas de entrada y salida
 echo 3. Cambiar calidad (actual: %QUALITY%)
 echo 4. Habilitar/Deshabilitar busqueda en subcarpetas (actual: %RECURSIVE:1=Habilitado:0=Deshabilitado%)
-echo 5. Salir
+echo 5. Cambiar formato de salida (actual: %FORMAT%)
+echo 6. Salir
 echo.
-set /p opcion="Seleccione una opcion (1-5): "
+set /p opcion="Seleccione una opcion (1-6): "
 
 goto opcion%opcion%
 
 :opcion1
     echo.
-    echo Convirtiendo imagenes...
-    python convert_to_avif.py %INPUT_FOLDER% -o %OUTPUT_FOLDER% -q %QUALITY% %RECURSIVE%
+    echo Convirtiendo imagenes a %FORMAT%...
+    python convert_to_avif.py %INPUT_FOLDER% -o %OUTPUT_FOLDER% -q %QUALITY% %RECURSIVE% -f %FORMAT%
     echo.
     pause
 goto menu
@@ -97,6 +99,26 @@ goto menu
 goto menu
 
 :opcion5
+    echo.
+    echo Seleccione el formato de salida:
+    echo 1. WebP (Recomendado para web)
+    echo 2. JPG (Compatible con todo)
+    echo.
+    set /p fmt_op="Opcion: "
+    
+    if "%fmt_op%"=="1" (
+        set FORMAT=webp
+        echo Formato cambiado a WebP
+    ) else if "%fmt_op%"=="2" (
+        set FORMAT=jpg
+        echo Formato cambiado a JPG
+    ) else (
+        echo Opcion no valida
+    )
+    timeout /t 1 >nul
+goto menu
+
+:opcion6
     exit /b 0
 
 :opcion

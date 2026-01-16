@@ -5,6 +5,24 @@ import os
 import shutil
 import sys
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
+import time
+
+def get_colombia_timestamp():
+    """Returns current timestamp in Colombia time (UTC-5) format HHMMDDMMYYYY"""
+    # Get current time in UTC
+    now_utc = datetime.now(timezone.utc)
+    # Convert to Colombia time (UTC-5)
+    colombia_offset = timezone(timedelta(hours=-5))
+    now_colombia = now_utc.astimezone(colombia_offset)
+    # Format: HHMMDDMMYYYY
+    return now_colombia.strftime("%H%M%d%m%Y")
+
+def get_custom_filename(original_filename, ext):
+    """Generates filename with format: original_K_HHMMDDMMYYYY.ext"""
+    name_without_ext = os.path.splitext(original_filename)[0]
+    timestamp = get_colombia_timestamp()
+    return f"{name_without_ext}_K_{timestamp}{ext}"
 
 class ImageConverterApp:
     def __init__(self, root):
@@ -131,7 +149,7 @@ class ImageConverterApp:
         files = filedialog.askopenfilenames(
             title="Seleccionar imágenes",
             filetypes=(
-                ("Imágenes", "*.jpg *.jpeg *.png"),
+                ("Imágenes", "*.jpg *.jpeg *.png *.webp *.bmp *.tiff"),
                 ("Todos los archivos", "*.*")
             )
         )
@@ -139,7 +157,7 @@ class ImageConverterApp:
             self.process_files(files)
     
     def process_files(self, files):
-        supported_formats = ('.jpg', '.jpeg', '.png', '.webp')
+        supported_formats = ('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff')
         new_files = []
         
         for file_path in files:
@@ -175,13 +193,21 @@ class ImageConverterApp:
             return
         
         output_format = self.output_format.get().lower()
+        # Normalizar formato jpg
+        if output_format == 'jpg':
+            output_format = 'jpeg'
+            
         quality = self.quality.get()
         total_files = len(self.files_to_convert)
         converted_count = 0
         
         # Crear directorio de salida si no existe
-        output_dir = os.path.join(self.output_dir, f"converted_{int(time.time())}")
-        os.makedirs(output_dir, exist_ok=True)
+        # Usamos una subcarpeta con timestamp para organizar lotes, pero los archivos tendrán su propio timestamp
+        # O mejor, usamos el directorio base y confiamos en el nombre único
+        # El usuario pidió "nombre actual original del archivo"_K_"fecha..."
+        # Así que podemos guardar directamente en output_dir
+        
+        output_dir = self.output_dir
         
         self.convert_btn.config(state=tk.DISABLED)
         self.progress["maximum"] = total_files
@@ -190,30 +216,43 @@ class ImageConverterApp:
         for i, input_path in enumerate(self.files_to_convert, 1):
             try:
                 filename = os.path.basename(input_path)
-                name_without_ext = os.path.splitext(filename)[0]
-                output_path = os.path.join(output_dir, f"{name_without_ext}.{output_format}")
+                
+                # Determinar extensión de salida
+                ext_map = {'jpeg': '.jpg', 'webp': '.webp', 'png': '.png'}
+                ext = ext_map.get(output_format, '.' + output_format)
+                
+                # Generar nombre personalizado
+                output_filename = get_custom_filename(filename, ext)
+                output_path = os.path.join(output_dir, output_filename)
                 
                 # Actualizar interfaz
-                self.log(f"Convirtiendo {i}/{total_files}: {filename}")
+                self.log(f"Convirtiendo {i}/{total_files}: {filename} -> {output_filename}")
                 self.progress["value"] = i
                 self.root.update_idletasks()
                 
                 # Convertir imagen
                 with Image.open(input_path) as img:
-                    # Convertir a RGB si es necesario
-                    if img.mode in ('RGBA', 'LA'):
+                    # Convertir a RGB si es necesario (para JPEG)
+                    if output_format == 'jpeg' and img.mode in ('RGBA', 'LA'):
                         background = Image.new('RGB', img.size, (255, 255, 255))
                         background.paste(img, mask=img.split()[-1])
                         img = background
-                    elif img.mode != 'RGB':
+                    elif img.mode != 'RGB' and output_format == 'jpeg':
                         img = img.convert('RGB')
                     
+                    # Argumentos de guardado
+                    save_args = {'quality': quality}
+                    if output_format == 'webp':
+                        save_args['method'] = 6
+                    elif output_format == 'png':
+                        save_args.pop('quality', None)
+                        save_args['optimize'] = True
+                        
                     # Guardar en el formato de salida
                     img.save(
                         output_path,
                         format=output_format.upper(),
-                        quality=quality,
-                        optimize=True
+                        **save_args
                     )
                 
                 converted_count += 1
@@ -242,5 +281,4 @@ def main():
     root.mainloop()
 
 if __name__ == "__main__":
-    import time
     main()

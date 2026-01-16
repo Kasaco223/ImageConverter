@@ -76,7 +76,7 @@ echo Creando ejecutable...
 
 :: Crear ejecutable con PyInstaller
 echo Creando ejecutable con PyInstaller...
-%PYTHON_EXE% -m PyInstaller --noconfirm --onefile --windowed --name="%EXE_NAME:~0,-4%" --icon=NONE --add-data "%CD%\*.*;." "%SCRIPT_NAME%" --distpath "%TEMP_DIR%" --workpath "%TEMP_DIR%\build" --specpath "%TEMP_DIR%"
+%PYTHON_EXE% -m PyInstaller --noconfirm --onefile --windowed --name="%EXE_NAME:~0,-4%" --icon=NONE "%SCRIPT_NAME%" --distpath "%TEMP_DIR%" --workpath "%TEMP_DIR%\build" --specpath "%TEMP_DIR%"
 
 if not exist "%TEMP_DIR%\%EXE_NAME%" (
     echo Error al crear el ejecutable. Verifica los mensajes de error anteriores.
