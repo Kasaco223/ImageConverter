@@ -74,44 +74,6 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-:: Mover el ejecutable al directorio actual
-move /Y "%TEMP_DIR%\%EXE_NAME%" . >nul
-
-:: Crear acceso directo
-echo.
-echo Creando accesos directos...
-
-:: Crear directorio en el menú de inicio
-if not exist "%START_MENU_DIR%" mkdir "%START_MENU_DIR%"
-
-:: Crear directorio en el menú de inicio
-if not exist "%START_MENU_DIR%" mkdir "%START_MENU_DIR%"
-
-:: Copiar el ejecutable al menú de inicio
-copy "%EXE_NAME%" "%START_MENU_DIR%\%EXE_NAME%" >nul
-
-:: Copiar el ejecutable al escritorio
-copy "%EXE_NAME%" "%DESKTOP_DIR%\%EXE_NAME%" >nul
-
-:: Crear accesos directos
-powershell -Command "
-$WshShell = New-Object -comObject WScript.Shell;
-$Shortcut = $WshShell.CreateShortcut('%START_MENU_DIR%\%SHORTCUT_NAME%');
-$Shortcut.TargetPath = '%START_MENU_DIR%\%EXE_NAME%';
-$Shortcut.WorkingDirectory = '%START_MENU_DIR%';
-$Shortcut.IconLocation = '%SYSTEMROOT%\System32\imageres.dll,67';
-$Shortcut.Description = '%APP_NAME%';
-$Shortcut.Save()"
-
-powershell -Command "
-$WshShell = New-Object -comObject WScript.Shell;
-$Shortcut = $WshShell.CreateShortcut('%DESKTOP_DIR%\%SHORTCUT_NAME%');
-$Shortcut.TargetPath = '%DESKTOP_DIR%\%EXE_NAME%';
-$Shortcut.WorkingDirectory = '%DESKTOP_DIR%';
-$Shortcut.IconLocation = '%SYSTEMROOT%\System32\imageres.dll,67';
-$Shortcut.Description = '%APP_NAME%';
-$Shortcut.Save()"
-
 :: Crear ejecutable con PyInstaller
 echo Creando ejecutable con PyInstaller...
 %PYTHON_EXE% -m PyInstaller --noconfirm --onefile --windowed --name="%EXE_NAME:~0,-4%" --icon=NONE "%SCRIPT_NAME%" --distpath "%TEMP_DIR%" --workpath "%TEMP_DIR%\build" --specpath "%TEMP_DIR%"
@@ -131,6 +93,39 @@ if not exist "output" mkdir "output"
 
 :: Limpiar script generado
 del /f /q "%SCRIPT_NAME%" >nul 2>&1
+
+:: Crear accesos directos
+echo.
+echo Creando accesos directos...
+
+:: Crear directorio en el menú de inicio
+if not exist "%START_MENU_DIR%" mkdir "%START_MENU_DIR%"
+
+:: Copiar el ejecutable al menú de inicio
+copy /Y "%EXE_NAME%" "%START_MENU_DIR%\%EXE_NAME%" >nul
+
+:: Copiar el ejecutable al escritorio
+copy /Y "%EXE_NAME%" "%DESKTOP_DIR%\%EXE_NAME%" >nul
+
+:: Generar script PowerShell para crear accesos directos
+set "PS_SCRIPT=%TEMP%\create_shortcuts.ps1"
+echo $WshShell = New-Object -comObject WScript.Shell > "%PS_SCRIPT%"
+echo $Shortcut = $WshShell.CreateShortcut('%START_MENU_DIR%\%SHORTCUT_NAME%') >> "%PS_SCRIPT%"
+echo $Shortcut.TargetPath = '%START_MENU_DIR%\%EXE_NAME%' >> "%PS_SCRIPT%"
+echo $Shortcut.WorkingDirectory = '%START_MENU_DIR%' >> "%PS_SCRIPT%"
+echo $Shortcut.IconLocation = '%SYSTEMROOT%\System32\imageres.dll,67' >> "%PS_SCRIPT%"
+echo $Shortcut.Description = '%APP_NAME%' >> "%PS_SCRIPT%"
+echo $Shortcut.Save() >> "%PS_SCRIPT%"
+echo $Shortcut = $WshShell.CreateShortcut('%DESKTOP_DIR%\%SHORTCUT_NAME%') >> "%PS_SCRIPT%"
+echo $Shortcut.TargetPath = '%DESKTOP_DIR%\%EXE_NAME%' >> "%PS_SCRIPT%"
+echo $Shortcut.WorkingDirectory = '%DESKTOP_DIR%' >> "%PS_SCRIPT%"
+echo $Shortcut.IconLocation = '%SYSTEMROOT%\System32\imageres.dll,67' >> "%PS_SCRIPT%"
+echo $Shortcut.Description = '%APP_NAME%' >> "%PS_SCRIPT%"
+echo $Shortcut.Save() >> "%PS_SCRIPT%"
+
+:: Ejecutar script PowerShell
+powershell -ExecutionPolicy Bypass -File "%PS_SCRIPT%"
+del /f /q "%PS_SCRIPT%" >nul 2>&1
 
 :: Crear archivo de desinstalación
 echo Creando desinstalador...
@@ -163,7 +158,7 @@ echo echo Desinstalación completada. >> "uninstall.bat"
 echo pause >> "uninstall.bat"
 
 :: Copiar el desinstalador al menú de inicio
-copy "uninstall.bat" "%START_MENU_DIR%\Desinstalar %APP_NAME%.bat" >nul
+copy /Y "uninstall.bat" "%START_MENU_DIR%\Desinstalar %APP_NAME%.bat" >nul
 
 :: Limpiar archivos temporales
 rmdir /s /q "%TEMP_DIR%" 2>nul
