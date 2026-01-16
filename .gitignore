@@ -126,3 +126,9 @@ Thumbs.db
 # Installer/batch outputs
 *.bak
 *.log
+
+# Project specific
+input/
+output/
+ConversorImagenes.exe
+uninstall.bat

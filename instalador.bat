@@ -33,10 +33,9 @@ if %ERRORLEVEL% NEQ 0 (
     
     :: Descargar instalador de Python
     set "PYTHON_URL=https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe"
-    set "PYTHON_INSTALLER=python_installer.exe"
     
     echo Descargando Python 3.11.4...
-    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('%PYTHON_URL%', '%PYTHON_INSTALLER%')" || (
+    powershell -Command "& {$url = 'https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe'; $output = Join-Path $env:TEMP 'python_installer.exe'; (New-Object System.Net.WebClient).DownloadFile($url, $output); exit $LASTEXITCODE}" || (
         echo Error al descargar Python.
         echo Por favor, instala Python manualmente desde https://www.python.org/downloads/
         pause
@@ -44,8 +43,8 @@ if %ERRORLEVEL% NEQ 0 (
     )
     
     echo Instalando Python...
-    start /wait "" %PYTHON_INSTALLER% /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
-    del /f /q %PYTHON_INSTALLER% >nul 2>&1
+    start /wait "" "%TEMP%\python_installer.exe" /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+    del /f /q "%TEMP%\python_installer.exe" >nul 2>&1
     
     echo Python instalado correctamente.
     echo Por favor, cierra y vuelve a abrir el instalador para continuar.
@@ -77,7 +76,7 @@ echo Creando ejecutable...
 
 :: Crear ejecutable con PyInstaller
 echo Creando ejecutable con PyInstaller...
-%PYTHON_EXE% -m PyInstaller --noconfirm --onefile --windowed --icon=NONE --add-data "%CD%\*.*;." "%SCRIPT_NAME%" --distpath "%TEMP_DIR%" --workpath "%TEMP_DIR%\build" --specpath "%TEMP_DIR%"
+%PYTHON_EXE% -m PyInstaller --noconfirm --onefile --windowed --name="%EXE_NAME:~0,-4%" --icon=NONE --add-data "%CD%\*.*;." "%SCRIPT_NAME%" --distpath "%TEMP_DIR%" --workpath "%TEMP_DIR%\build" --specpath "%TEMP_DIR%"
 
 if not exist "%TEMP_DIR%\%EXE_NAME%" (
     echo Error al crear el ejecutable. Verifica los mensajes de error anteriores.
