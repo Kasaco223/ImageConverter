@@ -248,71 +248,16 @@ if not exist "output" mkdir "output"
 :: Limpiar script generado
 del /f /q "%SCRIPT_NAME%" >nul 2>&1
 
-:: Crear accesos directos
-echo.
-echo Creando accesos directos...
-
-:: Crear directorio en el menú de inicio
-if not exist "%START_MENU_DIR%" mkdir "%START_MENU_DIR%"
-
-:: Copiar el ejecutable al menú de inicio
-copy /Y "%EXE_NAME%" "%START_MENU_DIR%\%EXE_NAME%" >nul
-
-:: Copiar el ejecutable al escritorio
-copy /Y "%EXE_NAME%" "%DESKTOP_DIR%\%EXE_NAME%" >nul
-
-:: Generar script PowerShell para crear accesos directos
-set "PS_SCRIPT=%TEMP%\create_shortcuts.ps1"
-echo $WshShell = New-Object -comObject WScript.Shell > "%PS_SCRIPT%"
-echo $Shortcut = $WshShell.CreateShortcut('%START_MENU_DIR%\%SHORTCUT_NAME%') >> "%PS_SCRIPT%"
-echo $Shortcut.TargetPath = '%START_MENU_DIR%\%EXE_NAME%' >> "%PS_SCRIPT%"
-echo $Shortcut.WorkingDirectory = '%START_MENU_DIR%' >> "%PS_SCRIPT%"
-echo $Shortcut.IconLocation = '%SYSTEMROOT%\System32\imageres.dll,67' >> "%PS_SCRIPT%"
-echo $Shortcut.Description = '%APP_NAME%' >> "%PS_SCRIPT%"
-echo $Shortcut.Save() >> "%PS_SCRIPT%"
-echo $Shortcut = $WshShell.CreateShortcut('%DESKTOP_DIR%\%SHORTCUT_NAME%') >> "%PS_SCRIPT%"
-echo $Shortcut.TargetPath = '%DESKTOP_DIR%\%EXE_NAME%' >> "%PS_SCRIPT%"
-echo $Shortcut.WorkingDirectory = '%DESKTOP_DIR%' >> "%PS_SCRIPT%"
-echo $Shortcut.IconLocation = '%SYSTEMROOT%\System32\imageres.dll,67' >> "%PS_SCRIPT%"
-echo $Shortcut.Description = '%APP_NAME%' >> "%PS_SCRIPT%"
-echo $Shortcut.Save() >> "%PS_SCRIPT%"
-
-:: Ejecutar script PowerShell
-powershell -ExecutionPolicy Bypass -File "%PS_SCRIPT%"
-del /f /q "%PS_SCRIPT%" >nul 2>&1
-
 :: Crear archivo de desinstalación
 echo Creando desinstalador...
 echo @echo off > "uninstall.bat"
-echo setlocal enabledelayedexpansion >> "uninstall.bat"
-echo. >> "uninstall.bat"
 echo echo Eliminando archivos del programa... >> "uninstall.bat"
-echo if exist "%START_MENU_DIR%\%EXE_NAME%" ( >> "uninstall.bat"
-echo     del /f /q "%START_MENU_DIR%\%EXE_NAME%" >> "uninstall.bat"
-echo ) >> "uninstall.bat"
-echo. >> "uninstall.bat"
-echo if exist "%DESKTOP_DIR%\%EXE_NAME%" ( >> "uninstall.bat"
-echo     del /f /q "%DESKTOP_DIR%\%EXE_NAME%" >> "uninstall.bat"
-echo ) >> "uninstall.bat"
-echo. >> "uninstall.bat"
-echo echo Eliminando accesos directos... >> "uninstall.bat"
-echo if exist "%START_MENU_DIR%\%SHORTCUT_NAME%" ( >> "uninstall.bat"
-echo     del /f /q "%START_MENU_DIR%\%SHORTCUT_NAME%" >> "uninstall.bat"
-echo ) >> "uninstall.bat"
-echo. >> "uninstall.bat"
-echo if exist "%DESKTOP_DIR%\%SHORTCUT_NAME%" ( >> "uninstall.bat"
-echo     del /f /q "%DESKTOP_DIR%\%SHORTCUT_NAME%" >> "uninstall.bat"
-echo ) >> "uninstall.bat"
-echo. >> "uninstall.bat"
-echo if exist "%START_MENU_DIR%" ( >> "uninstall.bat"
-echo     rmdir "%START_MENU_DIR%" 2^>nul >> "uninstall.bat"
-echo ) >> "uninstall.bat"
-echo. >> "uninstall.bat"
+echo if exist "%EXE_NAME%" del /f /q "%EXE_NAME%" >> "uninstall.bat"
+echo if exist "input" rmdir /s /q "input" >> "uninstall.bat"
+echo if exist "output" rmdir /s /q "output" >> "uninstall.bat"
 echo echo Desinstalación completada. >> "uninstall.bat"
 echo pause >> "uninstall.bat"
-
-:: Copiar el desinstalador al menú de inicio
-copy /Y "uninstall.bat" "%START_MENU_DIR%\Desinstalar %APP_NAME%.bat" >nul
+echo del "uninstall.bat" >> "uninstall.bat"
 
 :: Limpiar archivos temporales
 rmdir /s /q "%TEMP_DIR%" 2>nul
@@ -325,13 +270,13 @@ echo ===================================================
 echo.
 echo %APP_NAME% se ha instalado correctamente.
 echo.
-echo Accesos directos creados en:
-echo - Menú de Inicio: %START_MENU_DIR%
-echo - Escritorio: %DESKTOP_DIR%
+echo Se han creado las siguientes carpetas:
+echo - input: Coloca aquí las imágenes a convertir.
+echo - output: Aquí aparecerán las imágenes convertidas.
 echo.
-echo Para ejecutar el programa, usa cualquiera de los accesos directos creados.
+echo Para ejecutar el programa, abre "%EXE_NAME%".
 echo.
-echo Para desinstalar, ejecuta "Desinstalar %APP_NAME%.bat" desde el menú de inicio.
+echo Para desinstalar, ejecuta "uninstall.bat".
 echo.
 pause
 
